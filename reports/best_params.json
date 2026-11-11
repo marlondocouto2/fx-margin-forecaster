@@ -1,23 +1,23 @@
 {
   "xgboost": {
-    "n_estimators": 450,
-    "max_depth": 2,
-    "learning_rate": 0.0112521776325075,
-    "subsample": 0.8636667984455401,
-    "colsample_bytree": 0.9803584899530993,
-    "min_child_weight": 19.598944853473185,
-    "reg_lambda": 1.0239179953503939
+    "n_estimators": 250,
+    "max_depth": 4,
+    "learning_rate": 0.015110309038630188,
+    "subsample": 0.7541477629968335,
+    "colsample_bytree": 0.8800458793849719,
+    "min_child_weight": 4.040558640518603,
+    "reg_lambda": 8.199649514547062
   },
   "lightgbm": {
     "n_estimators": 100,
-    "num_leaves": 30,
-    "learning_rate": 0.01643292592096352,
-    "min_child_samples": 66,
-    "subsample": 0.6599108914758177,
-    "colsample_bytree": 0.8308505139631179,
-    "reg_lambda": 0.40422294245044127
+    "num_leaves": 26,
+    "learning_rate": 0.03729074987136042,
+    "min_child_samples": 317,
+    "subsample": 0.6663106264519197,
+    "colsample_bytree": 0.7610312870231706,
+    "reg_lambda": 7.40078194483781
   },
   "ridge": {
-    "alpha": 846.0166853562027
+    "alpha": 981.1671804009704
   }
 }
