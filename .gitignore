@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.idea/
+.claude/
+.DS_Store
+.ipynb_checkpoints/
+notebooks/_build.ipynb

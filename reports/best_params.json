@@ -1,0 +1,23 @@
+{
+  "xgboost": {
+    "n_estimators": 450,
+    "max_depth": 2,
+    "learning_rate": 0.0112521776325075,
+    "subsample": 0.8636667984455401,
+    "colsample_bytree": 0.9803584899530993,
+    "min_child_weight": 19.598944853473185,
+    "reg_lambda": 1.0239179953503939
+  },
+  "lightgbm": {
+    "n_estimators": 100,
+    "num_leaves": 30,
+    "learning_rate": 0.01643292592096352,
+    "min_child_samples": 66,
+    "subsample": 0.6599108914758177,
+    "colsample_bytree": 0.8308505139631179,
+    "reg_lambda": 0.40422294245044127
+  },
+  "ridge": {
+    "alpha": 846.0166853562027
+  }
+}
