@@ -95,11 +95,30 @@ Brazilian real moves:
 
 ![Forecast, risk band and realized margin](reports/figures/risk_band.png)
 
-**What drives the correction.** The gap between today's markup and the stage 1 forecast dominates.
-Today's markup, the 10-day FX return, volatility and the corridor add smaller, non-linear
-adjustments; that's where the tree models beat Ridge.
+**What drives the correction.** Stage 2 predicts a *correction*: how much to move the stage 1
+forecast up or down. SHAP splits each forecast's correction into a contribution from every input.
 
 ![SHAP summary](reports/figures/shap_summary.png)
+
+**How to read the chart:**
+
+- **Dots:** each dot is one forecast.
+- **Rows:** each row is one input, most influential at the top.
+- **Position:** how far the dot sits left or right is how much that input pushed the correction
+  down or up (0.002 = 20 bps).
+- **Colour:** the input's value that day, red for high and blue for low.
+
+**What it shows:**
+
+- **The markup gap dominates.** That's today's markup minus the stage 1 forecast: when the gap is
+  high (red), the model raises the forecast; when it's low (blue), it lowers it, by up to about
+  60 bps. The trend only sees margins at least 4 days old, so it lags, while the business already
+  knows today's markup. Most of stage 2's job is bringing a stale trend up to date.
+- **Everything else adds small refinements** of a few basis points: today's markup level (high
+  markups tend to drift back down), the 10-day FX move, volatility and the corridor. These
+  non-linear tweaks are where the tree models beat Ridge.
+- **No input predicts which way the currency will move.** That's expected: it's the unpredictable
+  part of the error, the oracle floor.
 
 ## How to run
 
