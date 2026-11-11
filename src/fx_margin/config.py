@@ -30,7 +30,6 @@ class Config:
     known_lag_days: int = 4         # a day's margin is certainly settled and known 4 days later
     sma_window: int = 28
     ewma_halflife: float = 10.0
-    seasonal_window: int = 182
 
     # Stage 2 and backtest
     horizons: tuple[int, ...] = (1, 5)

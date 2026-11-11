@@ -28,16 +28,15 @@ FEATURES = [
 
 
 def stage1_components(r: pd.Series) -> pd.DataFrame:
-    """Per origin: SMA and EWMA trend of known margins, and a weekday profile of deviations."""
+    """Per origin: moving-average and EWMA trend of known (settled) margins.
+
+    The stage 1 forecast for every future day is the latest trend value. `dev` is each trade
+    day's deviation from the trend known at that day, used as a stage 2 feature.
+    """
     known = r.shift(K)
     sma = known.rolling(CONFIG.sma_window, min_periods=10).mean()
     ewma = known.ewm(halflife=CONFIG.ewma_halflife, adjust=False).mean()
-    dev = r - ewma  # each trade day's deviation from the trend known at that day
-    dow = r.index.day_of_week
-    seas = pd.DataFrame({d: dev.where(dow == d).rolling(CONFIG.seasonal_window, min_periods=8).mean().shift(K)
-                         for d in range(7)}, index=r.index)
-    seas = seas.sub(seas.mean(axis=1), axis=0).fillna(0.0)  # centred: averages to zero over the week
-    return pd.DataFrame({"sma": sma, "ewma": ewma, "dev": dev}).join(seas.add_prefix("seas_"))
+    return pd.DataFrame({"sma": sma, "ewma": ewma, "dev": r - ewma})
 
 
 def _trading_returns(price: pd.Series, trading: pd.Series) -> pd.DataFrame:
@@ -79,9 +78,8 @@ def build_dataset(business: pd.DataFrame, market: pd.DataFrame) -> pd.DataFrame:
             o_idx, t_idx = r.index[ok], t[ok]
             d = origin.loc[o_idx].copy()
             tdow = t_idx.day_of_week.to_numpy()
-            seas = s1.loc[o_idx, [f"seas_{k}" for k in range(7)]].to_numpy()[np.arange(len(o_idx)), tdow]
-            d["s1_sma"] = s1.loc[o_idx, "sma"].to_numpy() + seas
-            d["s1_ewma"] = s1.loc[o_idx, "ewma"].to_numpy() + seas
+            d["s1_sma"] = s1.loc[o_idx, "sma"].to_numpy()
+            d["s1_ewma"] = s1.loc[o_idx, "ewma"].to_numpy()
             d["markup_gap"] = d["markup_now"] - d["s1_ewma"]  # today's markup vs the stage 1 forecast
             d["dow"] = tdow
             d["is_weekend"] = (tdow >= 5).astype(int)

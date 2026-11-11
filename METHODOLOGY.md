@@ -76,7 +76,7 @@ So the margin is the markup plus the currency's move from yesterday's close to s
 
 **Volume and USD margin.** Daily volume per corridor comes from the
 [Project 2](https://github.com/marlondocouto2/cash-flow-forecaster) generator: trend, weekday,
-paydays, holidays, scheduled and random spikes. Brazil is added with $10M a day growing 14% a
+paydays, holidays, scheduled and random spikes. Brazil is added with \$10M a day growing 14% a
 year. The daily margin in USD is $`\text{volume}_t \times r_t`$.
 
 On average, margins come out at 1.1–1.5%. They go negative on about 1–10% of days, depending on
@@ -96,19 +96,19 @@ $`h \in \{1, 5\}`$. At that moment:
 For simplicity and safety, the models only use margins at least **4 days old**, which have
 always settled. Tests check that no feature changes when future market data is altered.
 
-## 4. Stage 1: trend plus weekday profile
+## 4. Stage 1: a trend of settled margins
 
 Let $`\tilde r_o = r_{o-4}`$ be the most recent margin certainly known at origin $`o`$.
 
-- **Moving average:** $`T^{\mathrm{SMA}}_o = \frac{1}{28}\sum_{i=0}^{27} \tilde r_{o-i}`$.
-- **EWMA:** $`T^{\mathrm{EW}}_o = \lambda\,\tilde r_o + (1-\lambda)\,T^{\mathrm{EW}}_{o-1}`$, with
-  a half-life of 10 days.
-- **Weekday profile:** the average deviation $`r_s - T^{\mathrm{EW}}_s`$ for each weekday over
-  the last 182 known days, centred so the seven values average to zero. This is the $`P_o(d)`$ in
-  the forecast below.
-- **Stage 1 forecast:** $`\hat r^{(1)}_{o \to t} = T_o + P_o(\mathrm{weekday}(t))`$.
+- **EWMA (the stage 1 model):** $`T^{\mathrm{EW}}_o = \lambda\,\tilde r_o + (1-\lambda)\,T^{\mathrm{EW}}_{o-1}`$,
+  with a half-life of 10 days. Each past margin counts more the more recent it is.
+- **Moving average (for comparison):** $`T^{\mathrm{SMA}}_o = \frac{1}{28}\sum_{i=0}^{27} \tilde r_{o-i}`$.
+- **Stage 1 forecast:** the latest trend value, held flat over the horizon:
+  $`\hat r^{(1)}_{o \to t} = T^{\mathrm{EW}}_o`$.
 
-The two stage 1 variants are compared. The EWMA forecast is the base that stage 2 corrects.
+The EWMA forecast is the base that stage 2 corrects. The moving average is reported only as a
+comparison. An earlier version added a weekday adjustment to stage 1. It was removed because it
+didn't help: stage 1 error was slightly lower without it (57.4 against 58.0 bps).
 
 ## 5. Stage 2: learning what the trend misses
 
@@ -160,7 +160,9 @@ The band is the stage 1 forecast plus the 5th-percentile stage 1 error:
   $`(1-\alpha)(n+1)/n`$ quantile of $`\hat q_{0.05}(x) - e`$, which shifts the band so that 5% of
   those days fall below it.
 
-Without the correction, the quantile model alone was breached on about 7% of test days.
+In this setup the quantile model is already close to calibrated: without the correction, the
+band is breached on 5.7% of test days one day ahead, against 5.6% with it. The correction is kept
+as a safeguard, because a quantile model fitted on past data can drift when volatility changes.
 
 ## 7. Evaluation design
 
@@ -197,31 +199,31 @@ settled data.
 
 | Model | MAE (bps) | RMSE (bps) | MAE (USD/day) | Predictable error captured |
 |---|---|---|---|---|
-| Stage 1: moving average | 57.8 | 87.9 | $429k | 3% |
-| Stage 1: EWMA | 58.0 | 88.1 | $430k | (base) |
-| + Ridge | 54.0 | 82.7 | $402k | 79% |
-| **+ XGBoost** | **53.3** | **82.7** | **$397k** | **92%** |
-| + LightGBM | 53.9 | 83.6 | $401k | 81% |
-| Oracle | 52.9 | 81.9 | $395k | 100% |
+| Stage 1: moving average | 57.1 | 87.1 | \$426k | 6% |
+| Stage 1: EWMA | 57.4 | 87.3 | \$428k | (base) |
+| + Ridge | 54.0 | 82.7 | \$402k | 76% |
+| **+ XGBoost** | **53.7** | **83.0** | **\$400k** | **83%** |
+| + LightGBM | 53.8 | 83.0 | \$400k | 80% |
+| Oracle | 52.9 | 81.9 | \$395k | 100% |
 
-5 days ahead, the order is the same: XGBoost captures 78%, LightGBM 71% and Ridge 69%.
+5 days ahead, LightGBM edges ahead: it captures 71%, against 68% for XGBoost and 64% for Ridge.
 
-The margin-at-risk band is breached on **5.1%** of days at both horizons:
+The margin-at-risk band is breached on **5.6%** of days at both horizons:
 
 | Corridor | Breached |
 |---|---|
-| Mexico | 5.2% |
-| India | 3.4% |
-| Brazil | 6.6% |
+| Mexico | 5.1% |
+| India | 5.6% |
+| Brazil | 6.2% |
 
 **What the results show:**
 
-- **Most of the error is unforecastable by design.** About 53 of 58 bps is the FX move during
+- **Most of the error is unforecastable by design.** About 53 of 57 bps is the FX move during
   settlement. Pretending otherwise would mean overfitting noise.
 - **The markup gap carries most of the signal.** It accounts for most of what stage 2 learns:
   stage 1 is a lagged average of noisy margins, while the business already knows today's markup.
 - **Tree models beat Ridge through non-linear effects.** SHAP shows small extra effects from
-  volatility, 10-day FX momentum and the dollar index.
+  today's markup, 10-day FX momentum, volatility and the corridor.
 - **The value is in risk as much as accuracy.** A calibrated 5% band tells treasury how much margin
   could be lost on a bad day, per corridor. Brazil, the most volatile, gets the widest band.
 
@@ -234,7 +236,7 @@ The margin-at-risk band is breached on **5.1%** of days at both horizons:
   oracle comparison still apply.
 - **Volumes are taken as known** when translating to USD.
 - **Conformal calibration assumes the recent past resembles the near future.** In a regime change,
-  coverage can drift (for example Brazil at 6.6%) until the next refit.
+  coverage can drift (for example Brazil at 6.2%) until the next refit.
 - **The 4-day knowledge lag is conservative.** Some margins are known after 1–2 days.
 
 ## 10. Reproducing
