@@ -76,7 +76,7 @@ Everything about the business itself is simulated; see [data/README.md](data/REA
   settlement.
 - **Stage 2 captures most of it:** XGBoost captures 92%, LightGBM 81% and Ridge 79%.
 - **5 days ahead,** the order is the same: XGBoost 78%, LightGBM 71%, Ridge 69%.
-- **In dollars:** the average absolute error falls from $430k to $397k per corridor-day.
+- **In dollars:** the average absolute error falls from \$430k to \$397k per corridor-day.
 
 **Margin at risk.** The 5% band is breached on 5.1% of days at both horizons:
 

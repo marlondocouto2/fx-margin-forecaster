@@ -76,7 +76,7 @@ So the margin is the markup plus the currency's move from yesterday's close to s
 
 **Volume and USD margin.** Daily volume per corridor comes from the
 [Project 2](https://github.com/marlondocouto2/cash-flow-forecaster) generator: trend, weekday,
-paydays, holidays, scheduled and random spikes. Brazil is added with $10M a day growing 14% a
+paydays, holidays, scheduled and random spikes. Brazil is added with \$10M a day growing 14% a
 year. The daily margin in USD is $`\text{volume}_t \times r_t`$.
 
 On average, margins come out at 1.1–1.5%. They go negative on about 1–10% of days, depending on
@@ -197,12 +197,12 @@ settled data.
 
 | Model | MAE (bps) | RMSE (bps) | MAE (USD/day) | Predictable error captured |
 |---|---|---|---|---|
-| Stage 1: moving average | 57.8 | 87.9 | $429k | 3% |
-| Stage 1: EWMA | 58.0 | 88.1 | $430k | (base) |
-| + Ridge | 54.0 | 82.7 | $402k | 79% |
-| **+ XGBoost** | **53.3** | **82.7** | **$397k** | **92%** |
-| + LightGBM | 53.9 | 83.6 | $401k | 81% |
-| Oracle | 52.9 | 81.9 | $395k | 100% |
+| Stage 1: moving average | 57.8 | 87.9 | \$429k | 3% |
+| Stage 1: EWMA | 58.0 | 88.1 | \$430k | (base) |
+| + Ridge | 54.0 | 82.7 | \$402k | 79% |
+| **+ XGBoost** | **53.3** | **82.7** | **\$397k** | **92%** |
+| + LightGBM | 53.9 | 83.6 | \$401k | 81% |
+| Oracle | 52.9 | 81.9 | \$395k | 100% |
 
 5 days ahead, the order is the same: XGBoost captures 78%, LightGBM 71% and Ridge 69%.
 
